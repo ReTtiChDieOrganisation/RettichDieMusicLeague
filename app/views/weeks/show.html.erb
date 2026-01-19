@@ -187,8 +187,8 @@
                         "<%= submission.comment %>"
                       </p>
                     <% end %>
-                    <% if submission.song_url.present? %>
-                      <%= link_to submission.song_url,
+                    <% if (url = safe_external_url(submission.song_url)) %>
+                      <%= link_to url,
                                   target: "_blank",
                                   rel: "noopener noreferrer",
                                   class: "inline-block text-blue-400 hover:text-blue-300 text-sm" do %>
