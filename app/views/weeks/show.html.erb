@@ -116,10 +116,14 @@
                       "<%= submission.comment %>"
                     </p>
                   <% end %>
-                  <% if submission.song_url.present? && submission.song_url.start_with?("http://", "https://") %>
-                    <%= link_to "🔗 Listen on streaming service", submission.song_url, target: "_blank", rel: "noopener noreferrer",
-                        class: "inline-block mt-2 text-blue-400 hover:text-blue-300 text-sm" %>
-                  <% end %>
+                  <% if (url = safe_external_url(submission.song_url)) %>
+                      <%= link_to url,
+                                  target: "_blank",
+                                  rel: "noopener noreferrer",
+                                  class: "inline-block text-blue-400 hover:text-blue-300 text-sm" do %>
+                        🔗 Listen
+                      <% end %>
+                    <% end %>
                 </div>
 
                 <%= form_with url: submission_votes_path(submission), method: :post, class: "space-y-3" do |f| %>
