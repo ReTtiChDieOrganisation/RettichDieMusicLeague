@@ -35,7 +35,7 @@ module.exports = {
         'glass': '0 8px 32px 0 rgba(0, 0, 0, 0.37)',
       },
       backdropBlur: {
-        xs: '2px',
+        xs: '4px',
       },
       animation: {
         'pulse-glow': 'pulse-glow 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',

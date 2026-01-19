@@ -62,7 +62,7 @@
                 </div>
               </div>
               <div class="text-right">
-                <p class="text-4xl font-bold <%= index == 0 ? 'gradient-orange bg-clip-text text-transparent' : 'text-soundcloud-orange' %>"><%= ranking[:total_score].round(2) %></p>
+                <p class="text-4xl font-bold <%= winner_text_class(index) %>"><%= ranking[:total_score].round(2) %></p>
                 <p class="text-xs text-gray-400 font-semibold">total points</p>
               </div>
             </div>
