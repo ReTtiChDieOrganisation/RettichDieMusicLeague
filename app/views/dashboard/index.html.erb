@@ -1,57 +1,85 @@
 <div class="container mx-auto px-4 py-8">
-  <h1 class="text-3xl font-bold mb-8">B-Side Music Challenge</h1>
+  <%# Hero Section with Gradient %>
+  <div class="mb-12 text-center">
+    <div class="inline-block gradient-orange rounded-2xl px-8 py-4 mb-4 shadow-glow-orange">
+      <h1 class="text-4xl font-bold text-white">🎵 B-Side Music Challenge</h1>
+    </div>
+    <p class="text-gray-400 text-lg">Discover, share, and compete with friends through music</p>
+  </div>
 
   <% if user_signed_in? %>
-    <div class="mb-8">
-      <h2 class="text-2xl font-semibold mb-4">Your Groups</h2>
+    <div class="mb-12">
+      <h2 class="text-3xl font-bold mb-6">Your Groups</h2>
       
       <% if @groups.any? %>
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           <% @groups.each do |group| %>
-            <div class="bg-gray-800 rounded-lg p-6">
-              <h3 class="text-xl font-semibold mb-2"><%= group.name %></h3>
-              <%= link_to "View Group", group_path(group), class: "text-blue-400 hover:text-blue-300" %>
+            <div class="glass-card p-6 hover:shadow-glow-orange transition-all duration-300 hover:scale-105">
+              <h3 class="text-2xl font-bold mb-3 text-white"><%= group.name %></h3>
+              <%= link_to "View Group →", group_path(group), class: "text-soundcloud-orange hover:text-soundcloud-coral font-semibold transition-colors" %>
             </div>
           <% end %>
         </div>
       <% else %>
-        <p class="text-gray-400 mb-4">You're not in any groups yet.</p>
+        <div class="glass-card p-8 text-center">
+          <p class="text-gray-400 mb-6 text-lg">You're not in any groups yet.</p>
+          <p class="text-gray-500 mb-6">Create a group to start your music challenge journey!</p>
+        </div>
       <% end %>
       
-      <%= link_to "Create New Group", new_group_path, class: "inline-block mt-4 bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded" %>
+      <%= link_to new_group_path, class: "btn-primary inline-block mt-6" do %>
+        + Create New Group
+      <% end %>
     </div>
 
     <div>
-      <h2 class="text-2xl font-semibold mb-4">Active Weeks</h2>
+      <h2 class="text-3xl font-bold mb-6">Active Weeks</h2>
       
       <% if @active_weeks.any? %>
-        <div class="space-y-4">
+        <div class="space-y-6">
           <% @active_weeks.each do |week| %>
-            <div class="bg-gray-800 rounded-lg p-6">
-              <h3 class="text-xl font-semibold mb-2"><%= week.category %></h3>
-              <p class="text-gray-400 mb-2">Week <%= week.number %> - <%= week.season.group.name %></p>
+            <div class="glass-card p-6 hover:shadow-glow-orange transition-all duration-300">
+              <h3 class="text-2xl font-bold mb-3 text-white"><%= week.category %></h3>
+              <p class="text-gray-400 mb-3">Week <%= week.number %> - <%= week.season.group.name %></p>
               
               <% if week.submission_phase? %>
-                <p class="text-green-400 mb-2">Submission Phase</p>
+                <div class="flex items-center mb-3">
+                  <span class="bg-gradient-to-r from-blue-500 to-blue-600 text-white px-4 py-2 rounded-full text-sm font-semibold inline-flex items-center">
+                    📝 Submission Phase
+                  </span>
+                </div>
                 <p class="text-sm text-gray-400">Submit by <%= week.submission_deadline.strftime("%B %d, %I:%M %p") %></p>
               <% elsif week.voting_phase? %>
-                <p class="text-yellow-400 mb-2">Voting Phase</p>
+                <div class="flex items-center mb-3">
+                  <span class="bg-gradient-to-r from-soundcloud-orange to-soundcloud-coral text-white px-4 py-2 rounded-full text-sm font-semibold inline-flex items-center">
+                    🗳️ Voting Phase
+                  </span>
+                </div>
                 <p class="text-sm text-gray-400">Vote by <%= week.voting_deadline.strftime("%B %d, %I:%M %p") %></p>
               <% end %>
               
-              <%= link_to "View Week", group_season_week_path(week.season.group, week.season, week), class: "inline-block mt-4 text-blue-400 hover:text-blue-300" %>
+              <%= link_to group_season_week_path(week.season.group, week.season, week), class: "inline-block mt-4 btn-secondary" do %>
+                View Week →
+              <% end %>
             </div>
           <% end %>
         </div>
       <% else %>
-        <p class="text-gray-400">No active weeks at the moment.</p>
+        <div class="glass-card p-8 text-center">
+          <p class="text-gray-400 text-lg">No active weeks at the moment.</p>
+          <p class="text-gray-500 mt-2">Check back soon or create a new season in your group!</p>
+        </div>
       <% end %>
     </div>
   <% else %>
-    <div class="text-center">
-      <p class="text-xl mb-8">Welcome to B-Side! Sign in to join the music challenge.</p>
-      <%= link_to "Sign In", new_user_session_path, class: "bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-lg inline-block mr-4" %>
-      <%= link_to "Sign Up", new_user_registration_path, class: "bg-gray-700 hover:bg-gray-600 text-white px-8 py-3 rounded-lg inline-block" %>
+    <div class="text-center max-w-2xl mx-auto">
+      <div class="glass-card p-12">
+        <p class="text-2xl mb-8 text-gray-300">Welcome to B-Side! Sign in to join the music challenge.</p>
+        <div class="flex flex-col sm:flex-row gap-4 justify-center">
+          <%= link_to "Sign In", new_user_session_path, class: "btn-primary" %>
+          <%= link_to "Sign Up", new_user_registration_path, class: "glass-medium hover:glass-strong text-white px-8 py-3 rounded-xl font-semibold transition-all duration-200 border border-white/10" %>
+        </div>
+      </div>
     </div>
   <% end %>
 </div>

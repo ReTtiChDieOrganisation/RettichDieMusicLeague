@@ -8,3 +8,137 @@
  *
  * Consider organizing styles into separate files for maintainability.
  */
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --color-soundcloud-orange: #ff5500;
+    --color-soundcloud-coral: #ff7043;
+    --color-soundcloud-peach: #ff8a65;
+    --color-charcoal-dark: #111111;
+    --color-charcoal: #1a1a1a;
+    --color-charcoal-light: #1e1e1e;
+  }
+}
+
+@layer components {
+  /* Glassmorphism utilities */
+  .glass {
+    @apply bg-white/5 backdrop-blur-lg border border-white/10;
+  }
+
+  .glass-dark {
+    @apply bg-black/40 backdrop-blur-lg border border-white/10;
+  }
+
+  .glass-card {
+    @apply bg-white/5 backdrop-blur-lg rounded-2xl border border-white/10 shadow-xl;
+  }
+
+  /* Button styles */
+  .btn-primary {
+    @apply bg-gradient-to-r from-soundcloud-orange to-orange-600 hover:from-soundcloud-orange/90 hover:to-orange-500;
+    @apply text-white px-6 py-3 rounded-xl font-semibold;
+    @apply shadow-lg shadow-soundcloud-orange/25 hover:shadow-soundcloud-orange/40;
+    @apply transition-all duration-200;
+  }
+
+  .btn-secondary {
+    @apply bg-gradient-to-r from-soundcloud-coral to-soundcloud-peach hover:from-soundcloud-coral/90 hover:to-soundcloud-peach/90;
+    @apply text-white px-6 py-3 rounded-xl font-semibold;
+    @apply shadow-lg shadow-soundcloud-coral/25 hover:shadow-soundcloud-coral/40;
+    @apply transition-all duration-200;
+  }
+
+  /* Form input styles */
+  .input-glass {
+    @apply w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3;
+    @apply text-white placeholder-gray-500;
+    @apply focus:border-soundcloud-orange focus:ring-2 focus:ring-soundcloud-orange/20;
+    @apply transition-all duration-200;
+  }
+
+  /* Navigation active state */
+  .nav-active {
+    @apply text-soundcloud-orange relative;
+  }
+
+  .nav-active::after {
+    @apply absolute bottom-0 left-0 right-0 h-0.5;
+    @apply bg-gradient-to-r from-soundcloud-orange to-soundcloud-coral;
+    content: '';
+  }
+
+  /* Gradient backgrounds */
+  .gradient-orange {
+    background: linear-gradient(135deg, #ff5500 0%, #ff7043 100%);
+  }
+
+  .gradient-orange-purple {
+    background: linear-gradient(135deg, #ff5500 0%, #9333ea 100%);
+  }
+
+  .gradient-mesh {
+    background: 
+      radial-gradient(at 0% 0%, rgba(255, 85, 0, 0.1) 0px, transparent 50%),
+      radial-gradient(at 100% 100%, rgba(147, 51, 234, 0.1) 0px, transparent 50%);
+  }
+}
+
+@layer utilities {
+  /* Glow effects */
+  .glow-orange {
+    box-shadow: 0 0 20px rgba(255, 85, 0, 0.3);
+  }
+
+  .glow-orange-hover:hover {
+    box-shadow: 0 0 30px rgba(255, 85, 0, 0.5);
+  }
+
+  .focus-glow:focus {
+    box-shadow: 0 0 20px rgba(255, 85, 0, 0.3);
+    border-color: var(--color-soundcloud-orange);
+  }
+
+  /* Text glow */
+  .text-glow-orange {
+    text-shadow: 0 0 10px rgba(255, 85, 0, 0.5);
+  }
+
+  /* Animated gradient background */
+  .gradient-animate {
+    background-size: 300% 300%;
+    animation: gradient 8s ease infinite;
+  }
+
+  @keyframes gradient {
+    0%, 100% {
+      background-position: 0% 50%;
+    }
+    50% {
+      background-position: 100% 50%;
+    }
+  }
+
+  /* Glass morphism variations */
+  .glass-subtle {
+    background: rgba(255, 255, 255, 0.03);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
+  .glass-medium {
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .glass-strong {
+    background: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+  }
+}

@@ -1,6 +1,6 @@
 <div class="max-w-4xl mx-auto">
   <div class="mb-6">
-    <%= link_to group_season_path(@group, @season), class: "text-purple-400 hover:text-purple-300 inline-flex items-center" do %>
+    <%= link_to group_season_path(@group, @season), class: "text-soundcloud-orange hover:text-soundcloud-coral inline-flex items-center font-semibold transition-colors" do %>
       <svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
       </svg>
@@ -9,72 +9,74 @@
   </div>
 
   <%# Week Header %>
-  <div class="bg-gray-800 rounded-lg p-8 border border-gray-700 mb-6">
-    <div class="flex items-center justify-between mb-4">
-      <h1 class="text-3xl font-bold">Week <%= @week.number %></h1>
+  <div class="glass-card p-8 mb-6">
+    <div class="flex items-center justify-between mb-6">
+      <h1 class="text-4xl font-bold text-white">Week <%= @week.number %></h1>
       <% if @week.submission_phase? %>
-        <span class="bg-blue-500/20 text-blue-400 px-4 py-2 rounded-full text-sm font-semibold">
+        <span class="bg-gradient-to-r from-blue-500 to-blue-600 text-white px-5 py-2 rounded-full text-sm font-semibold shadow-lg inline-flex items-center">
           📝 Submissions Open
         </span>
       <% elsif @week.voting_phase? %>
-        <span class="bg-yellow-500/20 text-yellow-400 px-4 py-2 rounded-full text-sm font-semibold">
+        <span class="bg-gradient-to-r from-soundcloud-orange to-soundcloud-coral text-white px-5 py-2 rounded-full text-sm font-semibold shadow-glow-orange inline-flex items-center">
           🗳️ Voting Open
         </span>
       <% else %>
-        <span class="bg-green-500/20 text-green-400 px-4 py-2 rounded-full text-sm font-semibold">
+        <span class="bg-gradient-to-r from-green-500 to-emerald-600 text-white px-5 py-2 rounded-full text-sm font-semibold shadow-lg inline-flex items-center">
           🏆 Results
         </span>
       <% end %>
     </div>
 
-    <div class="bg-purple-600/20 border border-purple-500 rounded-lg p-4 mb-4">
-      <p class="text-sm text-purple-300 mb-1">Category</p>
-      <p class="text-2xl font-bold text-purple-400"><%= @week.category %></p>
+    <div class="glass-medium border border-soundcloud-orange/30 rounded-2xl p-6 mb-6 bg-gradient-to-r from-soundcloud-orange/10 to-soundcloud-coral/10">
+      <p class="text-sm text-soundcloud-coral font-semibold mb-2 uppercase tracking-wide">Category</p>
+      <p class="text-3xl font-bold text-white"><%= @week.category %></p>
     </div>
 
-    <div class="grid grid-cols-2 gap-4 text-sm">
-      <div>
-        <p class="text-gray-400">Submission Deadline</p>
-        <p class="font-semibold"><%= @week.submission_deadline.strftime("%b %d, %I:%M %p") %></p>
+    <div class="grid grid-cols-2 gap-6 text-sm">
+      <div class="glass-subtle rounded-xl p-4">
+        <p class="text-gray-400 mb-1">Submission Deadline</p>
+        <p class="font-bold text-white text-lg"><%= @week.submission_deadline.strftime("%b %d, %I:%M %p") %></p>
       </div>
-      <div>
-        <p class="text-gray-400">Voting Deadline</p>
-        <p class="font-semibold"><%= @week.voting_deadline.strftime("%b %d, %I:%M %p") %></p>
+      <div class="glass-subtle rounded-xl p-4">
+        <p class="text-gray-400 mb-1">Voting Deadline</p>
+        <p class="font-bold text-white text-lg"><%= @week.voting_deadline.strftime("%b %d, %I:%M %p") %></p>
       </div>
     </div>
 
     <% if @group.memberships.find_by(user: current_user).admin? %>
-      <div class="mt-4 pt-4 border-t border-gray-700">
+      <div class="mt-6 pt-6 border-t border-white/10">
         <%= link_to "Edit Category", edit_group_season_week_path(@group, @season, @week), 
-            class: "text-purple-400 hover:text-purple-300 text-sm underline" %>
+            class: "text-soundcloud-orange hover:text-soundcloud-coral text-sm font-semibold transition-colors" %>
       </div>
     <% end %>
   </div>
 
   <%# Submission Phase %>
   <% if @week.submission_phase? %>
-    <div class="bg-gray-800 rounded-lg p-8 border border-gray-700 mb-6">
-      <h2 class="text-xl font-semibold mb-4">Submit Your Song</h2>
+    <div class="glass-card p-8 mb-6">
+      <h2 class="text-2xl font-bold mb-6 text-white">Submit Your Song</h2>
       
       <% if @user_submission %>
-        <div class="bg-green-500/10 border border-green-500 rounded-lg p-4">
-          <p class="text-green-400 font-semibold mb-2">✓ You've submitted:</p>
-          <p class="text-lg"><%= @user_submission.song_title %> - <%= @user_submission.artist %></p>
+        <div class="glass-medium border border-green-500/30 rounded-2xl p-6 bg-green-500/10">
+          <p class="text-green-400 font-bold mb-3 text-lg flex items-center">
+            <span class="text-2xl mr-2">✓</span> You've submitted:
+          </p>
+          <p class="text-xl font-semibold text-white"><%= @user_submission.song_title %> - <%= @user_submission.artist %></p>
           <% if @user_submission.comment.present? %>
-            <p class="text-sm text-gray-400 mt-2"><%= @user_submission.comment %></p>
+            <p class="text-sm text-gray-400 mt-3 italic"><%= @user_submission.comment %></p>
           <% end %>
         </div>
       <% else %>
-        <p class="text-gray-400 mb-4">
-          Time remaining: <%= distance_of_time_in_words(Time.current, @week.submission_deadline) %>
+        <p class="text-gray-400 mb-6 text-lg">
+          ⏱️ Time remaining: <%= distance_of_time_in_words(Time.current, @week.submission_deadline) %>
         </p>
         <%= link_to "Submit a Song", new_group_season_week_submission_path(@group, @season, @week), 
-            class: "inline-block bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-lg font-semibold" %>
+            class: "btn-primary" %>
       <% end %>
     </div>
 
-    <div class="bg-gray-800 rounded-lg p-6 border border-gray-700">
-      <p class="text-gray-400 text-center">
+    <div class="glass-card p-8 text-center">
+      <p class="text-gray-400 text-lg">
         Submissions from other members will be visible after the submission deadline.
       </p>
     </div>
@@ -84,35 +86,35 @@
   <% if @week.voting_phase? %>
     <div class="space-y-6">
       <% if @user_submission %>
-        <div class="bg-gray-800 rounded-lg p-6 border border-gray-700">
-          <h2 class="text-xl font-semibold mb-4">Your Submission</h2>
-          <div class="bg-gray-900 rounded-lg p-4">
-            <p class="text-lg font-semibold mb-1"><%= @user_submission.song_title %></p>
-            <p class="text-purple-400 mb-2"><%= @user_submission.artist %></p>
+        <div class="glass-card p-6">
+          <h2 class="text-2xl font-bold mb-4 text-white">Your Submission</h2>
+          <div class="glass-medium rounded-xl p-4">
+            <p class="text-xl font-bold mb-2 text-white"><%= @user_submission.song_title %></p>
+            <p class="text-soundcloud-orange font-semibold mb-3"><%= @user_submission.artist %></p>
             <% if @user_submission.song_url.present? %>
               <%= link_to "🔗 Listen", @user_submission.song_url, target: "_blank", 
-                  class: "text-blue-400 hover:text-blue-300 text-sm" %>
+                  class: "text-soundcloud-coral hover:text-soundcloud-orange text-sm font-semibold transition-colors" %>
             <% end %>
           </div>
         </div>
       <% end %>
 
-      <div class="bg-gray-800 rounded-lg p-6 border border-gray-700">
-        <h2 class="text-xl font-semibold mb-4">Vote on Submissions</h2>
-        <p class="text-gray-400 mb-4">
-          Time remaining: <%= distance_of_time_in_words(Time.current, @week.voting_deadline) %>
+      <div class="glass-card p-6">
+        <h2 class="text-2xl font-bold mb-4 text-white">Vote on Submissions</h2>
+        <p class="text-gray-400 mb-6 text-lg">
+          ⏱️ Time remaining: <%= distance_of_time_in_words(Time.current, @week.voting_deadline) %>
         </p>
 
         <% if @submissions_to_vote.any? %>
-          <div class="space-y-4">
+          <div class="space-y-6">
             <% @submissions_to_vote.each do |submission| %>
-              <div class="bg-gray-900 rounded-lg p-4 border border-gray-700">
-                <div class="mb-4">
-                  <p class="text-lg font-semibold mb-1"><%= submission.song_title %></p>
-                  <p class="text-purple-400 mb-1"><%= submission.artist %></p>
-                  <p class="text-sm text-gray-400 mb-2">by <%= submission.user.display_name %></p>
+              <div class="glass-medium rounded-2xl p-6 border border-white/10 hover:border-soundcloud-orange/30 transition-all duration-300">
+                <div class="mb-6">
+                  <p class="text-xl font-bold mb-2 text-white"><%= submission.song_title %></p>
+                  <p class="text-soundcloud-orange font-semibold mb-2"><%= submission.artist %></p>
+                  <p class="text-sm text-gray-400 mb-3">by <%= submission.user.display_name %></p>
                   <% if submission.comment.present? %>
-                    <p class="text-sm text-gray-300 italic bg-gray-800 p-3 rounded">
+                    <p class="text-sm text-gray-300 italic glass-subtle p-4 rounded-xl">
                       "<%= submission.comment %>"
                     </p>
                   <% end %>
@@ -120,32 +122,32 @@
                       <%= link_to url,
                                   target: "_blank",
                                   rel: "noopener noreferrer",
-                                  class: "inline-block text-blue-400 hover:text-blue-300 text-sm" do %>
+                                  class: "inline-block text-soundcloud-coral hover:text-soundcloud-orange text-sm font-semibold mt-3 transition-colors" do %>
                         🔗 Listen
                       <% end %>
                     <% end %>
                 </div>
 
-                <%= form_with url: submission_votes_path(submission), method: :post, class: "space-y-3" do |f| %>
+                <%= form_with url: submission_votes_path(submission), method: :post, class: "space-y-4" do |f| %>
                   <div>
-                    <%= f.label :score, "Your Score (1-10)", class: "block text-sm font-semibold mb-2" %>
+                    <%= f.label :score, "Your Score (1-10)", class: "block text-sm font-bold mb-2 text-white" %>
                     <%= f.number_field :score, min: 1, max: 10, required: true,
-                        class: "w-full bg-gray-800 border border-gray-600 rounded px-4 py-2" %>
+                        class: "input-glass" %>
                   </div>
                   <div>
-                    <%= f.label :comment, "Comment (optional)", class: "block text-sm font-semibold mb-2" %>
+                    <%= f.label :comment, "Comment (optional)", class: "block text-sm font-bold mb-2 text-white" %>
                     <%= f.text_area :comment, rows: 2,
-                        class: "w-full bg-gray-800 border border-gray-600 rounded px-4 py-2", 
+                        class: "input-glass", 
                         placeholder: "Share your thoughts..." %>
                   </div>
-                  <%= f.submit "Submit Vote", class: "w-full bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded font-semibold cursor-pointer" %>
+                  <%= f.submit "Submit Vote", class: "w-full btn-primary cursor-pointer" %>
                 <% end %>
               </div>
             <% end %>
           </div>
         <% else %>
-          <div class="bg-green-500/10 border border-green-500 rounded-lg p-4">
-            <p class="text-green-400 text-center">
+          <div class="glass-medium border border-green-500/30 rounded-2xl p-6 bg-green-500/10">
+            <p class="text-green-400 text-center text-lg font-semibold">
               ✓ You've voted on all submissions! Check back after the voting deadline for results.
             </p>
           </div>
@@ -157,37 +159,37 @@
   <%# Results Phase %>
   <% if @week.results_phase? %>
     <div class="space-y-6">
-      <div class="bg-gray-800 rounded-lg p-6 border border-gray-700">
+      <div class="glass-card p-6">
         <div class="flex items-center justify-between mb-6">
-          <h2 class="text-xl font-semibold">Results</h2>
-          <%= link_to "Full Leaderboard", group_weekly_leaderboard_path(@group, week_id: @week.id), 
-              class: "text-purple-400 hover:text-purple-300 text-sm" %>
+          <h2 class="text-3xl font-bold text-white">🏆 Results</h2>
+          <%= link_to "Full Leaderboard →", group_weekly_leaderboard_path(@group, week_id: @week.id), 
+              class: "text-soundcloud-orange hover:text-soundcloud-coral text-sm font-semibold transition-colors" %>
         </div>
 
         <% if @submissions.any? %>
-          <div class="space-y-4">
+          <div class="space-y-6">
             <% @submissions.sort_by { |s| -(s.votes.average(:score) || 0) }.each_with_index do |submission, index| %>
-              <div class="bg-gray-900 rounded-lg p-4 border <%= index == 0 ? 'border-yellow-500' : 'border-gray-700' %>">
+              <div class="glass-medium rounded-2xl p-6 border <%= index == 0 ? 'border-soundcloud-orange shadow-glow-orange' : 'border-white/10' %> transition-all duration-300">
                 <div class="flex items-start justify-between">
                   <div class="flex-1">
-                    <div class="flex items-center mb-2">
+                    <div class="flex items-center mb-3">
                       <% if index == 0 %>
-                        <span class="text-2xl mr-2">🏆</span>
+                        <span class="text-4xl mr-3">🏆</span>
                       <% elsif index == 1 %>
-                        <span class="text-2xl mr-2">🥈</span>
+                        <span class="text-4xl mr-3">🥈</span>
                       <% elsif index == 2 %>
-                        <span class="text-2xl mr-2">🥉</span>
+                        <span class="text-4xl mr-3">🥉</span>
                       <% else %>
-                        <span class="text-gray-500 font-bold mr-2 text-lg">#<%= index + 1 %></span>
+                        <span class="text-gray-500 font-bold mr-3 text-2xl">#<%= index + 1 %></span>
                       <% end %>
                       <div>
-                        <p class="text-lg font-semibold"><%= submission.song_title %></p>
-                        <p class="text-purple-400 text-sm"><%= submission.artist %></p>
+                        <p class="text-xl font-bold text-white"><%= submission.song_title %></p>
+                        <p class="text-soundcloud-orange font-semibold"><%= submission.artist %></p>
                       </div>
                     </div>
-                    <p class="text-sm text-gray-400 mb-2">by <%= submission.user.display_name %></p>
+                    <p class="text-sm text-gray-400 mb-3">by <%= submission.user.display_name %></p>
                     <% if submission.comment.present? %>
-                      <p class="text-sm text-gray-300 italic bg-gray-800 p-3 rounded mb-2">
+                      <p class="text-sm text-gray-300 italic glass-subtle p-4 rounded-xl mb-3">
                         "<%= submission.comment %>"
                       </p>
                     <% end %>
@@ -195,16 +197,16 @@
                       <%= link_to url,
                                   target: "_blank",
                                   rel: "noopener noreferrer",
-                                  class: "inline-block text-blue-400 hover:text-blue-300 text-sm" do %>
+                                  class: "inline-block text-soundcloud-coral hover:text-soundcloud-orange text-sm font-semibold transition-colors" do %>
                         🔗 Listen
                       <% end %>
                     <% end %>
                   </div>
-                  <div class="text-right ml-4">
-                    <p class="text-3xl font-bold text-purple-400">
+                  <div class="text-right ml-6">
+                    <p class="text-5xl font-bold <%= index == 0 ? 'gradient-orange bg-clip-text text-transparent' : 'text-soundcloud-orange' %>">
                       <%= (submission.votes.average(:score) || 0).round(2) %>
                     </p>
-                    <p class="text-xs text-gray-400">
+                    <p class="text-xs text-gray-400 mt-2 font-semibold">
                       <%= pluralize(submission.votes.count, "vote") %>
                     </p>
                   </div>
@@ -212,15 +214,15 @@
 
                 <%# Show votes/comments %>
                 <% if submission.votes.any? %>
-                  <div class="mt-4 pt-4 border-t border-gray-800">
-                    <p class="text-sm font-semibold mb-2 text-gray-400">Votes:</p>
-                    <div class="space-y-2">
+                  <div class="mt-6 pt-6 border-t border-white/10">
+                    <p class="text-sm font-bold mb-3 text-gray-400 uppercase tracking-wide">Votes:</p>
+                    <div class="space-y-3">
                       <% submission.votes.includes(:voter).each do |vote| %>
-                        <div class="text-sm bg-gray-800 p-2 rounded">
-                          <span class="font-semibold"><%= vote.voter.display_name %>:</span>
-                          <span class="text-purple-400"><%= vote.score %>/10</span>
+                        <div class="text-sm glass-subtle p-3 rounded-xl">
+                          <span class="font-bold text-white"><%= vote.voter.display_name %>:</span>
+                          <span class="text-soundcloud-orange font-bold"><%= vote.score %>/10</span>
                           <% if vote.comment.present? %>
-                            <p class="text-gray-400 mt-1 italic">"<%= vote.comment %>"</p>
+                            <p class="text-gray-400 mt-2 italic">"<%= vote.comment %>"</p>
                           <% end %>
                         </div>
                       <% end %>
@@ -231,7 +233,7 @@
             <% end %>
           </div>
         <% else %>
-          <p class="text-gray-400 text-center py-8">No submissions for this week</p>
+          <p class="text-gray-400 text-center py-12 text-lg">No submissions for this week</p>
         <% end %>
       </div>
     </div>
