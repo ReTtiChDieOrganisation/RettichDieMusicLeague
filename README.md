@@ -50,7 +50,7 @@ cd b-side
 2. Install dependencies:
 ```bash
 bundle install
-npm install
+yarn install
 ```
 
 3. Set up environment variables:
@@ -218,4 +218,3 @@ This project is licensed under the MIT License.
 ## Support
 
 For issues and questions, please open a GitHub issue or contact the maintainers.
-
