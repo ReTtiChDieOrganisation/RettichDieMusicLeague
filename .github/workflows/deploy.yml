@@ -14,6 +14,8 @@ jobs:
   # Re-run CI checks to ensure code quality before deployment
   scan_ruby:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
 
     steps:
       - name: Checkout code
@@ -32,6 +34,8 @@ jobs:
       
   lint:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     env:
       RUBOCOP_CACHE_ROOT: tmp/rubocop
     steps:
@@ -59,6 +63,8 @@ jobs:
   deploy:
     name: Deploy to Fly.io
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     needs: [scan_ruby, lint]
     # Only deploy on push to main or manual workflow_dispatch, not on PRs
     if: github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
