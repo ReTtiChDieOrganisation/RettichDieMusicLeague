@@ -3,6 +3,7 @@ class ApplicationController < ActionController::Base
   allow_browser versions: :modern
 
   before_action :authenticate_user!, unless: :devise_controller?
+  before_action :configure_permitted_parameters, if: :devise_controller?
 
   private
 
@@ -19,5 +20,10 @@ class ApplicationController < ActionController::Base
     unless membership&.admin?
       redirect_to root_path, alert: "You must be an admin of this group to perform this action."
     end
+  end
+
+  def configure_permitted_parameters
+    devise_parameter_sanitizer.permit(:sign_up, keys: [:display_name])
+    devise_parameter_sanitizer.permit(:account_update, keys: [:display_name])
   end
 end
