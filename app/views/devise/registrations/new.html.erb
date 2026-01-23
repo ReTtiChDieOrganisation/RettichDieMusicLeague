@@ -12,6 +12,12 @@
       </div>
 
       <div>
+        <%= f.label :display_name, "Display name", class: "block text-sm font-semibold mb-2" %>
+        <%= f.text_field :display_name, autocomplete: "name",
+            class: "w-full bg-gray-900 border border-gray-600 rounded-lg px-4 py-3 focus:border-purple-500 focus:ring-1 focus:ring-purple-500" %>
+      </div>
+
+      <div>
         <%= f.label :password, class: "block text-sm font-semibold mb-2" %>
         <%= f.password_field :password, autocomplete: "new-password",
             class: "w-full bg-gray-900 border border-gray-600 rounded-lg px-4 py-3 focus:border-purple-500 focus:ring-1 focus:ring-purple-500" %>
