@@ -250,13 +250,37 @@ class TidalService
   def extract_image_url_from_album_attrs(album_attrs)
     return unless album_attrs.is_a?(Hash)
 
+    # 1) If v2 gives ready-to-use image links
     links = album_attrs["imageLinks"]
     if links.is_a?(Array)
-      links.first&.dig("href")
+      href = links.first&.dig("href")
+      return href if href.present?
     elsif links.is_a?(Hash)
-      links.values.first
+      href = links.values.first
+      return href if href.present?
     end
+
+    # 2) Common "cover" id forms (string or nested hash)
+    cover =
+      album_attrs["cover"] ||
+      album_attrs["coverId"] ||
+      album_attrs["coverID"] ||
+      album_attrs["imageId"] ||
+      album_attrs["imageID"] ||
+      album_attrs.dig("cover", "id") ||
+      album_attrs.dig("cover", "uuid") ||
+      album_attrs.dig("image", "id")
+
+    return tidal_cover_url(cover) if cover.present?
+
+    nil
   end
+
+  def tidal_cover_url(cover)
+    normalized = cover.to_s.tr("-", "/")
+    "https://resources.tidal.com/images/#{normalized}/640x640.jpg"
+  end
+
 
   def extract_image_url(attrs)
     links = attrs.dig("album", "imageLinks") || attrs["imageLinks"]
