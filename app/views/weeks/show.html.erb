@@ -117,6 +117,7 @@
           <%= button_to "Create Playlist",
                         generate_playlist_group_season_week_path(@group, @season, @week),
                         method: :post,
+                        form: { data: { turbo: false } },
                         class: "bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg text-sm font-semibold" %>
         </div>
         <p class="text-gray-400 mb-4">
