@@ -6,6 +6,9 @@ class GeneratePlaylistsJob < ApplicationJob
     user = User.find(user_id)
     submissions = week.submissions.includes(:user)
 
+    existing_playlist = UserPlaylist.find_by(user: user, name: week.category)
+    return existing_playlist.tidal_url if existing_playlist
+
     return if submissions.empty?
 
     # Generate Spotify playlist
@@ -29,7 +32,10 @@ class GeneratePlaylistsJob < ApplicationJob
       tracks: submissions.map(&:tidal_id).compact,
       access_token: access_token
     )
-    week.update(tidal_playlist_url: tidal_url) if tidal_url
+    if tidal_url
+      week.update(tidal_playlist_url: tidal_url)
+      UserPlaylist.create!(user: user, week: week, name: week.category, tidal_url: tidal_url)
+    end
     tidal_url
   end
 
