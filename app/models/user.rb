@@ -15,6 +15,7 @@ class User < ApplicationRecord
   has_many :submissions, dependent: :destroy
   has_many :votes, foreign_key: "voter_id", dependent: :destroy
   has_one :tidal_account, dependent: :destroy
+  has_many :user_playlists, dependent: :destroy
 
   # Validations
   validates :display_name, presence: true
