@@ -11,6 +11,7 @@ class TidalService
   TIDAL_SEARCH_RESULTS_URL = "https://openapi.tidal.com/v2/searchResults"
   TIDAL_TRACKS_URL         = "https://openapi.tidal.com/v2/tracks"
   TIDAL_PLAYLISTS_URL      = "https://openapi.tidal.com/v2/playlists"
+  TIDAL_AUTHORIZE_URL      = "https://auth.tidal.com/v1/oauth2/authorize"
 
   DEFAULT_COUNTRY_CODE = ENV.fetch("TIDAL_COUNTRY_CODE", "DE")
   MAX_TRACK_IDS_PER_BATCH = 20
@@ -20,16 +21,41 @@ class TidalService
     @client_secret = client_secret
   end
 
-  def create_playlist(name:, tracks:)
+  def authorization_url(redirect_uri:, state:, scope: "playlists.write offline_access")
+    uri = URI(TIDAL_AUTHORIZE_URL)
+    uri.query = URI.encode_www_form(
+      client_id: @client_id,
+      response_type: "code",
+      redirect_uri: redirect_uri,
+      scope: scope,
+      state: state
+    )
+    uri.to_s
+  end
+
+  def exchange_code_for_token(code:, redirect_uri:)
+    token_request(
+      grant_type: "authorization_code",
+      code: code,
+      redirect_uri: redirect_uri
+    )
+  end
+
+  def refresh_access_token(refresh_token:)
+    token_request(
+      grant_type: "refresh_token",
+      refresh_token: refresh_token
+    )
+  end
+
+  def create_playlist(name:, tracks:, access_token:)
     return if tracks.blank?
+    return if access_token.blank?
 
-    token = access_token
-    return if token.blank?
-
-    playlist_id = create_playlist_record(token, name)
+    playlist_id = create_playlist_record(access_token, name)
     return if playlist_id.blank?
 
-    add_tracks_to_playlist(token, playlist_id, tracks)
+    add_tracks_to_playlist(access_token, playlist_id, tracks)
 
     "https://tidal.com/browse/playlist/#{playlist_id}"
   end
@@ -90,6 +116,26 @@ class TidalService
     request["Authorization"] = "Bearer #{token}"
     # Keep headers minimal; TIDAL/CDN can be picky.
     Net::HTTP.start(uri.hostname, uri.port, use_ssl: true) { |http| http.request(request) }
+  end
+
+  def token_request(payload)
+    return if @client_id.blank? || @client_secret.blank?
+
+    uri = URI(TIDAL_TOKEN_URL)
+    request = Net::HTTP::Post.new(uri)
+    request["Content-Type"] = "application/x-www-form-urlencoded"
+    request["Authorization"] = "Basic #{Base64.strict_encode64("#{@client_id}:#{@client_secret}")}"
+    request.body = URI.encode_www_form(payload)
+
+    response = Net::HTTP.start(uri.hostname, uri.port, use_ssl: true) { |http| http.request(request) }
+    body = JSON.parse(response.body) rescue {}
+    return body if response.is_a?(Net::HTTPSuccess)
+
+    Rails.logger.warn("Tidal token request failed: status=#{response.code} body=#{safe_log(response.body)}")
+    nil
+  rescue StandardError => e
+    Rails.logger.warn("Tidal token request failed: #{e.class}: #{e.message}")
+    nil
   end
 
   def http_post(uri, token, payload)

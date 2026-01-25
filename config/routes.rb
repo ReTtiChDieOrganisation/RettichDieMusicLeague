@@ -6,6 +6,8 @@ Rails.application.routes.draw do
 
   # Dashboard
   get "dashboard", to: "dashboard#index", as: :dashboard
+  get "tidal/connect", to: "tidal_connections#connect", as: :tidal_connect
+  get "tidal/callback", to: "tidal_connections#callback", as: :tidal_callback
 
   # Groups
   resources :groups do
