@@ -17,9 +17,15 @@
           📝 Submissions Open
         </span>
       <% elsif @week.voting_phase? %>
-        <span class="bg-yellow-500/20 text-yellow-400 px-4 py-2 rounded-full text-sm font-semibold">
-          🗳️ Voting Open
-        </span>
+        <% if @remaining_points&.zero? %>
+          <span class="bg-green-500/20 text-green-400 px-4 py-2 rounded-full text-sm font-semibold">
+            ✅ Voting Submitted
+          </span>
+        <% else %>
+          <span class="bg-yellow-500/20 text-yellow-400 px-4 py-2 rounded-full text-sm font-semibold">
+            🗳️ Voting Open
+          </span>
+        <% end %>
       <% else %>
         <span class="bg-green-500/20 text-green-400 px-4 py-2 rounded-full text-sm font-semibold">
           🏆 Results
@@ -89,90 +95,137 @@
           <div class="bg-gray-900 rounded-lg p-4">
             <p class="text-lg font-semibold mb-1"><%= @user_submission.song_title %></p>
             <p class="text-purple-400 mb-2"><%= @user_submission.artist %></p>
-            <% if @user_submission.song_url.present? %>
-              <%= link_to "🔗 Listen", @user_submission.song_url, target: "_blank", 
-                  class: "text-blue-400 hover:text-blue-300 text-sm" %>
+            <% if @user_submission.tidal_id.present? %>
+              <iframe src="https://embed.tidal.com/tracks/<%= @user_submission.tidal_id %>"
+                      width="500"
+                      height="120"
+                      allow="encrypted-media; fullscreen; clipboard-write https://embed.tidal.com; web-share"
+                      sandbox="allow-same-origin allow-scripts allow-forms allow-popups allow-popups-to-escape-sandbox"
+                      style="color-scheme: light dark"
+                      title="TIDAL Embed Player"></iframe>
             <% end %>
           </div>
         </div>
       <% end %>
 
-      <div class="bg-gray-800 rounded-lg p-6 border border-gray-700">
+      <div class="bg-gray-800 rounded-lg p-6 border border-gray-700"
+           data-controller="vote-points"
+           data-vote-points-total-points-value="<%= Week::TOTAL_POINTS_PER_USER %>"
+           data-vote-points-max-per-song-value="<%= @group.max_points_per_song %>">
         <h2 class="text-xl font-semibold mb-4">Vote on Submissions</h2>
         <p class="text-gray-400 mb-4">
           Time remaining: <%= distance_of_time_in_words(Time.current, @week.voting_deadline) %>
         </p>
         <div class="bg-gray-900 border border-gray-700 rounded-lg p-4 mb-4 text-sm text-gray-300">
           <p class="font-semibold text-purple-300 mb-1">
-            Points remaining: <%= @remaining_points %> / <%= Week::TOTAL_POINTS_PER_USER %>
+            Points remaining:
+            <span data-vote-points-target="remaining"><%= @remaining_points %></span> /
+            <%= Week::TOTAL_POINTS_PER_USER %>
           </p>
           <p>
-            You can give up to <%= @group.max_points_per_song %> points per song.
+            You can give up to <%= @group.max_points_per_song %> points per song. Votes and comments are editable until
+            the deadline.
           </p>
-          <% if @remaining_points.zero? %>
-            <p class="text-green-400 mt-2">
-              You've submitted all your points and can no longer vote or comment this week.
-            </p>
-          <% end %>
         </div>
 
-        <% if @submissions_to_vote.any? %>
-          <div class="space-y-4">
-            <% @submissions_to_vote.each do |submission| %>
-              <% user_vote = @user_votes[submission.id] %>
-              <% points_for_song = user_vote&.score.to_i %>
-              <% can_add_point = @remaining_points.positive? && points_for_song < @group.max_points_per_song %>
-              <div class="bg-gray-900 rounded-lg p-4 border border-gray-700">
-                <div class="mb-4">
-                  <p class="text-lg font-semibold mb-1"><%= submission.song_title %></p>
-                  <p class="text-purple-400 mb-1"><%= submission.artist %></p>
-                  <p class="text-sm text-gray-400 mb-2">by <%= submission.user.display_name %></p>
-                  <% if submission.comment.present? %>
-                    <p class="text-sm text-gray-300 italic bg-gray-800 p-3 rounded">
-                      "<%= submission.comment %>"
-                    </p>
-                  <% end %>
-                  <% if (url = safe_external_url(submission.song_url)) %>
-                      <%= link_to url,
-                                  target: "_blank",
-                                  rel: "noopener noreferrer",
-                                  class: "inline-block text-blue-400 hover:text-blue-300 text-sm" do %>
-                        🔗 Listen
-                      <% end %>
-                    <% end %>
-                </div>
-
-                <div class="flex items-center justify-between text-sm text-gray-300 mb-3">
-                  <span>Your points: <%= points_for_song %> / <%= @group.max_points_per_song %></span>
-                  <% if @remaining_points.zero? %>
-                    <span class="text-green-400">All points submitted for the week.</span>
-                  <% end %>
-                </div>
-
-                <% if can_add_point %>
-                  <%= form_with url: submission_votes_path(submission), method: :post, scope: :vote, class: "space-y-3" do |f| %>
-                    <% if user_vote.nil? %>
-                      <div>
-                        <%= f.label :comment, "Comment (optional)", class: "block text-sm font-semibold mb-2" %>
-                        <%= f.text_area :comment, rows: 2,
-                            class: "w-full bg-gray-800 border border-gray-600 rounded px-4 py-2",
-                            placeholder: "Share your thoughts..." %>
-                      </div>
-                    <% end %>
-                    <%= f.submit "+1 Point", class: "w-full bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded font-semibold cursor-pointer" %>
-                  <% end %>
-                <% else %>
-                  <p class="text-sm text-gray-500 italic">
-                    <% if points_for_song >= @group.max_points_per_song %>
-                      You've reached the max points for this song.
-                    <% elsif @remaining_points.zero? %>
-                      You've submitted all points for the week.
-                    <% end %>
-                  </p>
-                <% end %>
+        <% if @week.tidal_playlist_url.present? %>
+          <% if (playlist_src = tidal_playlist_embed_src(@week.tidal_playlist_url)) %>
+            <div class="mb-4" data-controller="toggle">
+              <button type="button"
+                      class="w-full bg-gray-900 border border-gray-700 rounded-lg px-4 py-2 text-sm font-semibold text-purple-300 hover:text-purple-200 hover:border-purple-400"
+                      data-action="click->toggle#toggle"
+                      data-toggle-target="button"
+                      aria-expanded="false">
+                ▶ Play submissions
+              </button>
+              <div class="mt-3 hidden" data-toggle-target="panel">
+                <iframe src="<%= playlist_src %>"
+                        width="500"
+                        height="120"
+                        allow="encrypted-media; fullscreen; clipboard-write https://embed.tidal.com; web-share"
+                        sandbox="allow-same-origin allow-scripts allow-forms allow-popups allow-popups-to-escape-sandbox"
+                        style="color-scheme: light dark"
+                        title="TIDAL Embed Player"></iframe>
               </div>
-            <% end %>
-          </div>
+            </div>
+          <% end %>
+        <% end %>
+
+        <% if @submissions_to_vote.any? %>
+          <%= form_with url: week_votes_path(@week), method: :post do %>
+            <div class="space-y-4">
+              <% @submissions_to_vote.each do |submission| %>
+                <% user_vote = @user_votes[submission.id] %>
+                <% points_for_song = user_vote&.score.to_i %>
+                <div class="bg-gray-900 rounded-lg p-4 border border-gray-700">
+                  <div class="mb-4">
+                    <p class="text-lg font-semibold mb-1"><%= submission.song_title %></p>
+                    <p class="text-purple-400 mb-1"><%= submission.artist %></p>
+                    <% if submission.comment.present? %>
+                      <p class="text-sm text-gray-300 italic bg-gray-800 p-3 rounded">
+                        "<%= submission.comment %>"
+                      </p>
+                    <% end %>
+                    <% if submission.tidal_id.present? %>
+                      <iframe src="https://embed.tidal.com/tracks/<%= submission.tidal_id %>"
+                              width="500"
+                              height="120"
+                              allow="encrypted-media; fullscreen; clipboard-write https://embed.tidal.com; web-share"
+                              sandbox="allow-same-origin allow-scripts allow-forms allow-popups allow-popups-to-escape-sandbox"
+                              style="color-scheme: light dark"
+                              title="TIDAL Embed Player"></iframe>
+                    <% end %>
+                  </div>
+
+                  <div class="flex flex-wrap items-center gap-3 text-sm text-gray-300">
+                    <span class="font-semibold">Points</span>
+                    <button type="button"
+                            class="h-8 w-8 rounded-full bg-gray-800 border border-gray-600 text-white hover:bg-gray-700"
+                            data-action="click->vote-points#decrement"
+                            data-submission-id="<%= submission.id %>">
+                      -
+                    </button>
+                    <%= text_field_tag "votes[#{submission.id}][score]",
+                                       points_for_song,
+                                       readonly: true,
+                                       inputmode: "numeric",
+                                       pattern: "\\d*",
+                                       class: "w-16 text-center bg-gray-800 border border-gray-600 rounded px-2 py-1 text-white",
+                                       data: { vote_points_target: "score", submission_id: submission.id } %>
+                    <button type="button"
+                            class="h-8 w-8 rounded-full bg-gray-800 border border-gray-600 text-white hover:bg-gray-700"
+                            data-action="click->vote-points#increment"
+                            data-submission-id="<%= submission.id %>">
+                      +
+                    </button>
+                    <span class="text-xs text-gray-500">Max <%= @group.max_points_per_song %></span>
+                  </div>
+
+                  <div class="mt-4">
+                    <%= label_tag "votes_#{submission.id}_comment", "Comment (optional)",
+                                  class: "block text-sm font-semibold mb-2" %>
+                    <%= text_area_tag "votes[#{submission.id}][comment]",
+                                      user_vote&.comment,
+                                      rows: 2,
+                                      id: "votes_#{submission.id}_comment",
+                                      class: "w-full bg-gray-800 border border-gray-600 rounded px-4 py-2",
+                                      placeholder: "Share your thoughts..." %>
+                  </div>
+                </div>
+              <% end %>
+            </div>
+
+            <div class="mt-6 space-y-2">
+              <%= button_tag "Submit votes",
+                             type: "submit",
+                             class: "w-full bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded font-semibold disabled:opacity-60 disabled:cursor-not-allowed",
+                             data: { vote_points_target: "submit" },
+                             disabled: @remaining_points != 0 %>
+              <p class="text-xs text-gray-400" data-vote-points-target="helper">
+                Allocate all points to enable submission.
+              </p>
+            </div>
+          <% end %>
         <% else %>
           <div class="bg-green-500/10 border border-green-500 rounded-lg p-4">
             <p class="text-green-400 text-center">
@@ -193,6 +246,29 @@
           <%= link_to "Full Leaderboard", group_weekly_leaderboard_path(@group, week_id: @week.id), 
               class: "text-purple-400 hover:text-purple-300 text-sm" %>
         </div>
+
+        <% if @week.tidal_playlist_url.present? %>
+          <% if (playlist_src = tidal_playlist_embed_src(@week.tidal_playlist_url)) %>
+            <div class="mb-6" data-controller="toggle">
+              <button type="button"
+                      class="w-full bg-gray-900 border border-gray-700 rounded-lg px-4 py-2 text-sm font-semibold text-purple-300 hover:text-purple-200 hover:border-purple-400"
+                      data-action="click->toggle#toggle"
+                      data-toggle-target="button"
+                      aria-expanded="false">
+                ▶ Play submissions
+              </button>
+              <div class="mt-3 hidden" data-toggle-target="panel">
+                <iframe src="<%= playlist_src %>"
+                        width="500"
+                        height="120"
+                        allow="encrypted-media; fullscreen; clipboard-write https://embed.tidal.com; web-share"
+                        sandbox="allow-same-origin allow-scripts allow-forms allow-popups allow-popups-to-escape-sandbox"
+                        style="color-scheme: light dark"
+                        title="TIDAL Embed Player"></iframe>
+              </div>
+            </div>
+          <% end %>
+        <% end %>
 
         <% if @submissions.any? %>
           <div class="space-y-4">
@@ -221,13 +297,14 @@
                         "<%= submission.comment %>"
                       </p>
                     <% end %>
-                    <% if (url = safe_external_url(submission.song_url)) %>
-                      <%= link_to url,
-                                  target: "_blank",
-                                  rel: "noopener noreferrer",
-                                  class: "inline-block text-blue-400 hover:text-blue-300 text-sm" do %>
-                        🔗 Listen
-                      <% end %>
+                    <% if submission.tidal_id.present? %>
+                      <iframe src="https://embed.tidal.com/tracks/<%= submission.tidal_id %>"
+                              width="500"
+                              height="120"
+                              allow="encrypted-media; fullscreen; clipboard-write https://embed.tidal.com; web-share"
+                              sandbox="allow-same-origin allow-scripts allow-forms allow-popups allow-popups-to-escape-sandbox"
+                              style="color-scheme: light dark"
+                              title="TIDAL Embed Player"></iframe>
                     <% end %>
                   </div>
                   <div class="text-right ml-4">

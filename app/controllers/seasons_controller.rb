@@ -12,7 +12,10 @@ class SeasonsController < ApplicationController
     @weeks = @season.weeks.order(:number)
 
     # Calculate cumulative standings for the season
-    submissions = Submission.joins(:week).where(weeks: { season_id: @season.id }).includes(:user, :votes)
+    submissions = Submission.joins(:week)
+                            .where(weeks: { season_id: @season.id })
+                            .where("weeks.voting_deadline <= ?", Time.current)
+                            .includes(:user, :votes)
 
     user_stats = {}
     submissions.each do |submission|
