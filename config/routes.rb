@@ -6,11 +6,16 @@ Rails.application.routes.draw do
 
   # Dashboard
   get "dashboard", to: "dashboard#index", as: :dashboard
+  get "tidal/connect", to: "tidal_connections#connect", as: :tidal_connect
+  get "tidal/callback", to: "tidal_connections#callback", as: :tidal_callback
 
   # Groups
   resources :groups do
     resources :seasons, only: [ :index, :new, :create, :show ] do
       resources :weeks, only: [ :index, :show, :edit, :update ] do
+        member do
+          post :generate_playlist
+        end
         resources :submissions, only: [ :index, :new, :create, :show ] do
           collection do
             get :search
@@ -35,6 +40,7 @@ Rails.application.routes.draw do
   resources :submissions, only: [] do
     resources :votes, only: [ :create ]
   end
+  post "weeks/:week_id/votes", to: "votes#bulk_update", as: :week_votes
 
   # Health check
   get "up" => "rails/health#show", as: :rails_health_check
