@@ -22,7 +22,7 @@ class TidalConnectionsController < ApplicationController
   TOKEN_URL     = "https://auth.tidal.com/v1/oauth2/token"
 
   # Pick scopes you need (playlist creation needs playlists.write; reading user info might need user.read)
-  SCOPES = %w[user.read playback playlists.write playlists.read].freeze
+  SCOPES = %w[user.read playback playlists.write playlists.read search.read].freeze
 
   def connect
     client_id = ENV["TIDAL_CLIENT_ID"]
