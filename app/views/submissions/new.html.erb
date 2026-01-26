@@ -20,8 +20,11 @@
       </p>
     </div>
 
+    <% submission_url = @submission.persisted? ? group_season_week_submission_path(@group, @season, @week, @submission) : group_season_week_submissions_path(@group, @season, @week) %>
+    <% submission_method = @submission.persisted? ? :patch : :post %>
     <%= form_with model: @submission,
-                  url: group_season_week_submissions_path(@group, @season, @week),
+                  url: submission_url,
+                  method: submission_method,
                   class: "space-y-6",
                   data: {
                     controller: "tidal-search",

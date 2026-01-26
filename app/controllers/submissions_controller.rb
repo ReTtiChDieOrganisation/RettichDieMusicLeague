@@ -1,8 +1,8 @@
 class SubmissionsController < ApplicationController
-  before_action :set_week, only: [ :new, :create, :search ]
-  before_action :set_submission, only: [ :show ]
+  before_action :set_week, only: [ :new, :create, :search, :update ]
+  before_action :set_submission, only: [ :show, :update ]
   before_action :require_group_membership
-  before_action :check_submission_phase, only: [ :new, :create ]
+  before_action :check_submission_phase, only: [ :new, :create, :update ]
 
   def index
     @week = Week.find(params[:week_id])
@@ -32,6 +32,23 @@ class SubmissionsController < ApplicationController
 
     if @submission.save
       redirect_to group_season_week_path(@group, @season, @week), notice: "Your submission has been saved!"
+    else
+      render :new, status: :unprocessable_entity
+    end
+  end
+
+  def update
+    @season = @week.season
+    @group = @season.group
+
+    unless @submission.user == current_user
+      redirect_to group_season_week_path(@group, @season, @week),
+                  alert: "You can only update your own submission."
+      return
+    end
+
+    if @submission.update(submission_params)
+      redirect_to group_season_week_path(@group, @season, @week), notice: "Your submission has been updated!"
     else
       render :new, status: :unprocessable_entity
     end
