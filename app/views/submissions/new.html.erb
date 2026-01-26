@@ -71,6 +71,9 @@
 
       <% selected_classes = @submission.tidal_id.present? ? "border border-gray-700 rounded-lg p-4 bg-gray-900/60" : "hidden border border-gray-700 rounded-lg p-4 bg-gray-900/60" %>
       <div id="tidal-selected" class="<%= selected_classes %>" data-tidal-search-target="selected">
+        <div class="hidden">
+          <img alt="" data-tidal-search-target="cover" />
+        </div>
         <p id="tidal-title" class="text-lg font-semibold" data-tidal-search-target="title">
           <%= @submission.song_title %>
         </p>
