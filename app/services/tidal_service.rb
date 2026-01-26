@@ -319,7 +319,7 @@ class TidalService
 
     type = rel.first["type"]
     id   = rel.first["id"]&.to_s
-    attrs = included_index[[type, id]]
+    attrs = included_index[[ type, id ]]
     return unless attrs.is_a?(Hash)
 
     attrs["name"] || attrs["title"]
@@ -331,7 +331,7 @@ class TidalService
 
     type = rel.first["type"]
     id   = rel.first["id"]&.to_s
-    included_index[[type, id]]
+    included_index[[ type, id ]]
   end
 
   def extract_external_tidal_url(attrs, id)
