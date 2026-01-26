@@ -85,7 +85,14 @@ class TidalService
     token = access_token.presence || access_token()
     return [] if token.blank?
 
-    track_ids = fetch_search_track_ids(token, query, limit: limit, country_code: country_code)
+    search_scope = access_token.present? ? "USER" : nil
+    track_ids = fetch_search_track_ids(
+      token,
+      query,
+      limit: limit,
+      country_code: country_code,
+      search_scope: search_scope
+    )
     return [] if track_ids.empty?
 
     results = []
@@ -212,11 +219,13 @@ class TidalService
   # Search + fetch
   # ---------------------------
 
-  def fetch_search_track_ids(token, query, limit:, country_code:)
+  def fetch_search_track_ids(token, query, limit:, country_code:, search_scope: nil)
     encoded_query = URI.encode_www_form_component(query).gsub("+", "%20")
 
     uri = URI("#{TIDAL_SEARCH_RESULTS_URL}/#{encoded_query}/relationships/tracks")
-    uri.query = URI.encode_www_form(countryCode: country_code, limit: limit)
+    params = { countryCode: country_code, limit: limit }
+    params[:searchScope] = search_scope if search_scope.present?
+    uri.query = URI.encode_www_form(params)
 
     response = http_get(uri, token)
     safe_logger_info("Tidal search(tracks ids) status=#{response.code} body=#{safe_log(response.body)}")
