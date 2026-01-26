@@ -24,7 +24,7 @@ class GroupsController < ApplicationController
   end
 
   def generate_liked_playlist
-    liked_submissions = Submission.joins(week: :season, :likes)
+    liked_submissions = Submission.joins(:likes, week: :season)
                                   .where(seasons: { group_id: @group.id })
                                   .where(likes: { user_id: current_user.id })
 

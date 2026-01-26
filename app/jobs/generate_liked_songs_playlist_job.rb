@@ -5,7 +5,7 @@ class GenerateLikedSongsPlaylistJob < ApplicationJob
     group = Group.find(group_id)
     user = User.find(user_id)
 
-    liked_submissions = Submission.joins(week: :season, :likes)
+    liked_submissions = Submission.joins(:likes, week: :season)
                                   .where(seasons: { group_id: group.id })
                                   .where(likes: { user_id: user.id })
                                   .distinct
