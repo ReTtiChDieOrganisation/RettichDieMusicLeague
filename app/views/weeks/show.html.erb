@@ -152,11 +152,17 @@
             <div class="space-y-4">
               <% @submissions_to_vote.each do |submission| %>
                 <% user_vote = @user_votes[submission.id] %>
+                <% user_like = @user_likes[submission.id] %>
                 <% points_for_song = user_vote&.score.to_i %>
                 <div class="bg-gray-900 rounded-lg p-4 border border-gray-700">
                   <div class="mb-4">
-                    <p class="text-lg font-semibold mb-1"><%= submission.song_title %></p>
-                    <p class="text-purple-400 mb-1"><%= submission.artist %></p>
+                    <div class="flex items-start justify-between gap-4">
+                      <div>
+                        <p class="text-lg font-semibold mb-1"><%= submission.song_title %></p>
+                        <p class="text-purple-400 mb-1"><%= submission.artist %></p>
+                      </div>
+                      <%= render "likes/button", submission: submission, user_like: user_like %>
+                    </div>
                     <% if submission.comment.present? %>
                       <p class="text-sm text-gray-300 italic bg-gray-800 p-3 rounded">
                         "<%= submission.comment %>"

@@ -1,6 +1,6 @@
 class GroupsController < ApplicationController
   before_action :set_group, only: [ :show, :edit, :update, :destroy ]
-  before_action :require_group_membership, only: [ :show, :generate_playlist ]
+  before_action :require_group_membership, only: [ :show, :generate_playlist, :generate_liked_playlist ]
   before_action :require_group_admin, only: [ :edit, :update, :destroy ]
 
   def index
@@ -20,6 +20,25 @@ class GroupsController < ApplicationController
     else
       redirect_to group_path(@group),
                   alert: "Unable to create a playlist right now."
+    end
+  end
+
+  def generate_liked_playlist
+    liked_submissions = Submission.joins(:likes, week: :season)
+                                  .where(seasons: { group_id: @group.id })
+                                  .where(likes: { user_id: current_user.id })
+
+    if liked_submissions.none?
+      redirect_to group_path(@group), alert: "You haven't liked any songs in this group yet."
+      return
+    end
+
+    tidal_url = GenerateLikedSongsPlaylistJob.perform_now(@group.id, current_user.id)
+    if tidal_url.present?
+      redirect_to tidal_url, allow_other_host: true
+    else
+      redirect_to group_path(@group),
+                  alert: "Unable to create a liked songs playlist right now."
     end
   end
 

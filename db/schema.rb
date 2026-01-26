@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_01_25_154403) do
+ActiveRecord::Schema[8.1].define(version: 2026_01_26_000000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -23,6 +23,16 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_25_154403) do
     t.datetime "updated_at", null: false
     t.index ["creator_id"], name: "index_groups_on_creator_id"
     t.index ["invite_code"], name: "index_groups_on_invite_code", unique: true
+  end
+
+  create_table "likes", force: :cascade do |t|
+    t.bigint "submission_id", null: false
+    t.datetime "created_at", null: false
+    t.bigint "user_id", null: false
+    t.datetime "updated_at", null: false
+    t.index ["submission_id", "user_id"], name: "index_likes_on_submission_id_and_user_id", unique: true
+    t.index ["submission_id"], name: "index_likes_on_submission_id"
+    t.index ["user_id"], name: "index_likes_on_user_id"
   end
 
   create_table "memberships", force: :cascade do |t|
@@ -130,6 +140,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_25_154403) do
   end
 
   add_foreign_key "groups", "users", column: "creator_id"
+  add_foreign_key "likes", "submissions"
+  add_foreign_key "likes", "users"
   add_foreign_key "memberships", "groups"
   add_foreign_key "memberships", "users"
   add_foreign_key "seasons", "groups"

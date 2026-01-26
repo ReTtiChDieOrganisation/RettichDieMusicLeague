@@ -34,6 +34,7 @@ Rails.application.routes.draw do
     member do
       get :invite
       post :generate_playlist
+      post :generate_liked_playlist
     end
     # Leaderboards
     get "leaderboard/weekly/:week_id", to: "leaderboards#weekly", as: :weekly_leaderboard
@@ -48,6 +49,7 @@ Rails.application.routes.draw do
   # Votes (nested under submissions)
   resources :submissions, only: [] do
     resources :votes, only: [ :create ]
+    resources :likes, only: [ :create, :destroy ]
   end
   post "weeks/:week_id/votes", to: "votes#bulk_update", as: :week_votes
 

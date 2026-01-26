@@ -20,6 +20,9 @@ class WeeksController < ApplicationController
       @user_votes = current_user.votes.joins(:submission)
                                .where(submissions: { week_id: @week.id })
                                .index_by(&:submission_id)
+      @user_likes = current_user.likes.joins(:submission)
+                               .where(submissions: { week_id: @week.id })
+                               .index_by(&:submission_id)
       @points_used = @user_votes.values.sum(&:score)
       @remaining_points = [ Week::TOTAL_POINTS_PER_USER - @points_used, 0 ].max
     end
