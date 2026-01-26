@@ -6,7 +6,6 @@ class CreateSubmissions < ActiveRecord::Migration[8.1]
       t.string :song_title, null: false
       t.string :artist, null: false
       t.string :song_url
-      t.string :spotify_uri
       t.string :tidal_id
       t.text :comment
       t.string :album_art_url
