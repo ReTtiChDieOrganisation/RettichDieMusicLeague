@@ -6,7 +6,7 @@ class PlaylistGenerator
   def generate(name:, tracks:, week: nil)
     existing_playlist = UserPlaylist.find_by(user: @user, name: name)
     if existing_playlist
-      if week&.tidal_playlist_url.blank?
+      if week && week.tidal_playlist_url.blank?
         week.update(tidal_playlist_url: existing_playlist.tidal_url)
       end
       return existing_playlist.tidal_url
