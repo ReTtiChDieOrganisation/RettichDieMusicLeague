@@ -6,26 +6,19 @@ class LikesController < ApplicationController
 
   def create
     @user_like = Like.find_or_create_by!(submission: @submission, user: current_user)
-    respond_to do |format|
-      format.turbo_stream { render_like_button }
-      format.html { redirect_to group_season_week_path(@group, @season, @week) }
-    end
+    return render_like_button if turbo_frame_request?
+
+    redirect_to group_season_week_path(@group, @season, @week)
   rescue ActiveRecord::RecordInvalid => e
-    respond_to do |format|
-      format.turbo_stream do
-        redirect_to group_season_week_path(@group, @season, @week), alert: e.record.errors.full_messages.join(", ")
-      end
-      format.html { redirect_to group_season_week_path(@group, @season, @week), alert: e.record.errors.full_messages.join(", ") }
-    end
+    redirect_to group_season_week_path(@group, @season, @week), alert: e.record.errors.full_messages.join(", ")
   end
 
   def destroy
     @user_like = Like.find_by(submission: @submission, user: current_user)
     @user_like&.destroy
-    respond_to do |format|
-      format.turbo_stream { render_like_button }
-      format.html { redirect_to group_season_week_path(@group, @season, @week) }
-    end
+    return render_like_button if turbo_frame_request?
+
+    redirect_to group_season_week_path(@group, @season, @week)
   end
 
   private
@@ -50,10 +43,7 @@ class LikesController < ApplicationController
   end
 
   def render_like_button
-    render turbo_stream: turbo_stream.replace(
-      dom_id(@submission, :like),
-      partial: "likes/button",
-      locals: { submission: @submission, user_like: current_user.likes.find_by(submission: @submission) }
-    )
+    render partial: "likes/button",
+           locals: { submission: @submission, user_like: current_user.likes.find_by(submission: @submission) }
   end
 end
