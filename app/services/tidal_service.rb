@@ -102,7 +102,7 @@ class TidalService
       request.body = URI.encode_www_form(grant_type: "client_credentials")
 
       response = Net::HTTP.start(uri.hostname, uri.port, use_ssl: true) { |http| http.request(request) }
-      body = JSON.parse(response.body) rescue {}
+      body = parse_json(response.body)
       body["access_token"]
     end
   end
@@ -128,7 +128,7 @@ class TidalService
     request.body = URI.encode_www_form(payload)
 
     response = Net::HTTP.start(uri.hostname, uri.port, use_ssl: true) { |http| http.request(request) }
-    body = JSON.parse(response.body) rescue {}
+    body = parse_json(response.body)
     return body if response.is_a?(Net::HTTPSuccess)
 
     Rails.logger.warn("Tidal token request failed: status=#{response.code} body=#{safe_log(response.body)}")
@@ -166,6 +166,12 @@ class TidalService
     "[unloggable body]"
   end
 
+  def parse_json(body)
+    JSON.parse(body)
+  rescue JSON::ParserError
+    {}
+  end
+
   # ---------------------------
   # Search + fetch
   # ---------------------------
@@ -181,7 +187,7 @@ class TidalService
 
     return [] unless response.is_a?(Net::HTTPSuccess)
 
-    payload = JSON.parse(response.body) rescue {}
+    payload = parse_json(response.body)
     data = payload["data"]
     return [] unless data.is_a?(Array)
 
@@ -204,7 +210,7 @@ class TidalService
     safe_logger_info("Tidal create playlist status=#{response.code} body=#{safe_log(response.body)}")
     return unless response.is_a?(Net::HTTPSuccess) || response.is_a?(Net::HTTPCreated)
 
-    body = JSON.parse(response.body) rescue {}
+    body = parse_json(response.body)
     body.dig("data", "id")
   rescue StandardError => e
     Rails.logger.warn("Tidal create playlist failed: #{e.class}: #{e.message}")
@@ -242,7 +248,7 @@ class TidalService
 
     return [] unless response.is_a?(Net::HTTPSuccess)
 
-    payload = JSON.parse(response.body) rescue {}
+    payload = parse_json(response.body)
     parse_v2_tracks_payload(payload)
   end
 
@@ -381,7 +387,6 @@ class TidalService
     normalized = cover.to_s.tr("-", "/")
     "https://resources.tidal.com/images/#{normalized}/640x640.jpg"
   end
-
 
   def extract_image_url(attrs)
     links = attrs.dig("album", "imageLinks") || attrs["imageLinks"]

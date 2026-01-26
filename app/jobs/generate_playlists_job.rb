@@ -11,14 +11,6 @@ class GeneratePlaylistsJob < ApplicationJob
 
     return if submissions.empty?
 
-    # Generate Spotify playlist
-    spotify_service = SpotifyService.new
-    spotify_url = spotify_service.create_playlist(
-      name: week.category,
-      tracks: submissions.map(&:spotify_uri).compact
-    )
-    week.update(spotify_playlist_url: spotify_url) if spotify_url
-
     # Generate Tidal playlist
     tidal_account = user.tidal_account
     return unless tidal_account

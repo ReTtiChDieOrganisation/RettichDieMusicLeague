@@ -6,7 +6,6 @@ class CreateWeeks < ActiveRecord::Migration[8.1]
       t.string :category, null: false
       t.datetime :submission_deadline, null: false
       t.datetime :voting_deadline, null: false
-      t.string :spotify_playlist_url
       t.string :tidal_playlist_url
 
       t.timestamps
