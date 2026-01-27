@@ -1,3 +1,59 @@
-<svg width="512" height="512" xmlns="http://www.w3.org/2000/svg">
-  <circle cx="256" cy="256" r="256" fill="red"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" role="img" aria-label="Rettich app icon (light)">
+  <defs>
+    <style>
+      .stroke{stroke:#111;stroke-width:34;stroke-linecap:round;stroke-linejoin:round}
+    </style>
+  </defs>
+
+  <!-- Background -->
+  <rect x="64" y="64" width="896" height="896" rx="220" fill="#FFFFFF"/>
+
+  <!-- Icon group centered -->
+  <g transform="translate(0,10)">
+    <!-- Leaves -->
+    <path d="M512 190
+             C452 140 404 162 410 232
+             C416 296 472 326 512 352
+             C552 326 608 296 614 232
+             C620 162 572 140 512 190Z"
+          fill="#35C759" class="stroke"/>
+    <path d="M438 242
+             C382 214 346 252 362 306
+             C378 360 438 372 476 396
+             C476 354 464 292 438 242Z"
+          fill="#2FBF53" class="stroke"/>
+    <path d="M586 242
+             C642 214 678 252 662 306
+             C646 360 586 372 548 396
+             C548 354 560 292 586 242Z"
+          fill="#2FBF53" class="stroke"/>
+
+    <!-- Body -->
+    <path d="M512 352
+             C406 352 346 444 346 562
+             C346 686 434 764 512 820
+             C590 764 678 686 678 562
+             C678 444 618 352 512 352Z"
+          fill="#FFFFFF" class="stroke"/>
+
+    <!-- Subtle creases -->
+    <path d="M420 558 C462 532 562 532 604 558" fill="none" class="stroke" opacity="0.18"/>
+    <path d="M432 632 C468 610 556 610 592 632" fill="none" class="stroke" opacity="0.14"/>
+
+    <!-- Glasses -->
+    <rect x="386" y="468" width="240" height="150" rx="54" fill="#111"/>
+    <rect x="638" y="468" width="240" height="150" rx="54" fill="#111"/>
+    <path d="M626 545 C604 532 572 526 512 526 C452 526 420 532 398 545"
+          fill="none" stroke="#111" stroke-width="34" stroke-linecap="round"/>
+
+    <!-- Highlights -->
+    <path d="M442 500 C472 478 520 480 544 508" fill="none" stroke="#FFFFFF" stroke-width="26" stroke-linecap="round" opacity="0.18"/>
+    <path d="M690 500 C720 478 768 480 792 508" fill="none" stroke="#FFFFFF" stroke-width="26" stroke-linecap="round" opacity="0.18"/>
+
+    <!-- Smile -->
+    <path d="M474 646 C500 670 524 670 550 646" fill="none" stroke="#111" stroke-width="28" stroke-linecap="round"/>
+
+    <!-- Tail -->
+    <path d="M512 820 C496 858 468 886 430 906" fill="none" class="stroke"/>
+  </g>
 </svg>
