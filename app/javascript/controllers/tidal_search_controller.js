@@ -54,7 +54,7 @@ export default class extends Controller {
     this.hideSuggestions()
   }
 
-  lookupByUrl() {
+  lookup() {
     clearTimeout(this.urlDebounceTimer)
     this.urlDebounceTimer = setTimeout(() => this.fetchTrackByUrl(), 300)
   }
