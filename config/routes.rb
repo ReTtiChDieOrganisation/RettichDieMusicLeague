@@ -39,6 +39,11 @@ Rails.application.routes.draw do
       post :generate_playlist
       post :generate_liked_playlist
     end
+    resources :category_submissions, only: [ :create ] do
+      member do
+        post :apply_to_week
+      end
+    end
     # Leaderboards
     get "leaderboard/weekly/:week_id", to: "leaderboards#weekly", as: :weekly_leaderboard
     get "leaderboard/season/:season_id", to: "leaderboards#season", as: :season_leaderboard
@@ -53,6 +58,9 @@ Rails.application.routes.draw do
   resources :submissions, only: [] do
     resources :votes, only: [ :create ]
     resources :likes, only: [ :create, :destroy ]
+  end
+  resources :category_submissions, only: [] do
+    resources :category_votes, only: [ :create, :destroy ]
   end
   post "weeks/:week_id/votes", to: "votes#bulk_update", as: :week_votes
 

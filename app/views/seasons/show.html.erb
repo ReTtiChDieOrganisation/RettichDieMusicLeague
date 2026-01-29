@@ -104,6 +104,9 @@
             </div>
             
             <p class="text-purple-400 font-semibold mb-2"><%= week.category %></p>
+            <% if week.subtitle.present? %>
+              <p class="text-sm text-purple-200/80 mb-2"><%= week.subtitle %></p>
+            <% end %>
             
             <div class="text-sm text-gray-400">
               <% if week.submission_phase? %>

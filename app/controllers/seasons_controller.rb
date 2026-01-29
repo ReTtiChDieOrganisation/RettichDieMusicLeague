@@ -79,6 +79,7 @@ class SeasonsController < ApplicationController
         @season.weeks.create!(
           number: week_number,
           category: "TBD - Set by admin",
+          subtitle: "Set by admin",
           submission_deadline: submission_deadline,
           voting_deadline: voting_deadline
         )

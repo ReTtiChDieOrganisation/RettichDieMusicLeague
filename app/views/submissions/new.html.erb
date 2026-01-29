@@ -10,7 +10,12 @@
 
   <div class="bg-gray-800 rounded-lg p-8 border border-gray-700">
     <h1 class="text-3xl font-bold mb-2">Submit Your Song</h1>
-    <p class="text-purple-400 font-semibold text-lg mb-8"><%= @week.category %></p>
+    <p class="text-purple-400 font-semibold text-lg"><%= @week.category %></p>
+    <% if @week.subtitle.present? %>
+      <p class="text-sm text-purple-200/80 mb-8"><%= @week.subtitle %></p>
+    <% else %>
+      <div class="mb-8"></div>
+    <% end %>
 
     <div class="bg-blue-500/10 border border-blue-500 rounded-lg p-4 mb-6">
       <p class="text-blue-300 text-sm">

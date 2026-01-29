@@ -35,6 +35,13 @@
       </div>
 
       <div>
+        <%= f.label :subtitle, "Subtitle", class: "block text-sm font-semibold mb-2" %>
+        <%= f.text_field :subtitle,
+            class: "w-full bg-gray-900 border border-gray-600 rounded-lg px-4 py-3 focus:border-purple-500 focus:ring-1 focus:ring-purple-500",
+            placeholder: "Add a short description for the category" %>
+      </div>
+
+      <div>
         <%= f.label :submission_deadline, "Submission Deadline", class: "block text-sm font-semibold mb-2" %>
         <%= f.datetime_field :submission_deadline,
             class: "w-full bg-gray-900 border border-gray-600 rounded-lg px-4 py-3 focus:border-purple-500 focus:ring-1 focus:ring-purple-500" %>

@@ -11,6 +11,27 @@ class GroupsController < ApplicationController
     @current_season = @group.seasons.active.first
     @members = @group.members
     @membership = @group.memberships.find_by(user: current_user)
+    @category_submission = CategorySubmission.new
+    @category_submissions = @group.category_submissions.includes(:user, :category_votes)
+    if @category_submissions.any?
+      submission_ids = @category_submissions.map(&:id)
+      user_votes = current_user.category_votes.where(category_submission_id: submission_ids)
+      @category_votes_by_submission = user_votes.group_by(&:category_submission_id)
+      @category_vote_ids_by_submission = user_votes.group_by(&:category_submission_id).transform_values do |votes|
+        votes.map(&:id)
+      end
+    else
+      @category_votes_by_submission = {}
+      @category_vote_ids_by_submission = {}
+    end
+    @season_options = @group.seasons.order(number: :desc).map do |season|
+      ["Season #{season.number}", season.id]
+    end
+    @week_options = @group.seasons.includes(:weeks).flat_map do |season|
+      season.weeks.order(:number).map do |week|
+        ["Season #{season.number} - Week #{week.number}", week.id]
+      end
+    end
   end
 
   def generate_playlist

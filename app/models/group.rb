@@ -3,6 +3,7 @@ class Group < ApplicationRecord
   has_many :memberships, dependent: :destroy
   has_many :members, through: :memberships, source: :user
   has_many :seasons, dependent: :destroy
+  has_many :category_submissions, dependent: :destroy
 
   # Validations
   validates :name, presence: true
