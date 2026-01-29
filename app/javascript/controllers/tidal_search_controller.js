@@ -220,6 +220,9 @@ export default class extends Controller {
       artist: track.artist
     })
 
+    const tidalId = track.id || track.tidal_id || this.tidalIdFieldTarget?.value
+    if (tidalId) params.set("tidal_id", tidalId)
+
     const submissionId = this.element.dataset.tidalSubmissionId
     if (submissionId) params.set("submission_id", submissionId)
 
@@ -240,9 +243,9 @@ export default class extends Controller {
     if (!this.hasWarningTarget || !data) return
 
     const messages = []
-    const weekMessage = this.scopeMessage("This week", data.week)
-    const seasonMessage = this.scopeMessage("This season", data.season, "this season")
-    const groupMessage = this.scopeMessage("This group", data.group, "in this group")
+    const weekMessage = this.scopeMessage(data.week)
+    const seasonMessage = this.scopeMessage(data.season, "this season")
+    const groupMessage = this.scopeMessage(data.group, "in this group")
 
     if (weekMessage) messages.push(weekMessage)
     if (seasonMessage) messages.push(seasonMessage)
@@ -262,9 +265,9 @@ export default class extends Controller {
 
     const parts = []
     if (summary.same_song) {
-      parts.push("this song has already been submitted")
+      parts.push("This song has already been submitted")
     } else if (summary.same_artist) {
-      parts.push("a song by this artist has already been submitted")
+      parts.push("A song by this artist has already been submitted")
     }
 
     if (!parts.length) return null

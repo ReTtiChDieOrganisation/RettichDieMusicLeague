@@ -75,6 +75,7 @@ class SubmissionsController < ApplicationController
   def duplicates
     song_title = params[:song_title].to_s.strip
     artist = params[:artist].to_s.strip
+    tidal_id = params[:tidal_id].to_s.strip.presence
     submission_id = params[:submission_id].presence
 
     if song_title.blank? || artist.blank?
@@ -95,9 +96,9 @@ class SubmissionsController < ApplicationController
     end
 
     render json: {
-      week: duplicate_summary(base_scope, song_title, artist),
-      season: duplicate_summary(season_scope, song_title, artist),
-      group: duplicate_summary(group_scope, song_title, artist)
+      week: duplicate_summary(base_scope, song_title, artist, tidal_id: tidal_id),
+      season: duplicate_summary(season_scope, song_title, artist, tidal_id: tidal_id),
+      group: duplicate_summary(group_scope, song_title, artist, tidal_id: tidal_id)
     }
   end
 
@@ -136,9 +137,19 @@ class SubmissionsController < ApplicationController
     end
   end
 
-  def duplicate_summary(scope, song_title, artist)
-    song_count = scope.where("LOWER(song_title) = ? AND LOWER(artist) = ?", song_title.downcase, artist.downcase).count
-    artist_count = scope.where("LOWER(artist) = ?", artist.downcase).count
+  def duplicate_summary(scope, song_title, artist, tidal_id: nil)
+    normalized_title = song_title.downcase.squish
+    normalized_artist = artist.downcase.squish
+    artist_count = scope.where("LOWER(artist) = ?", normalized_artist).count
+
+    song_match_scope = if tidal_id.present?
+      by_tidal = scope.where(tidal_id: tidal_id)
+      by_title_artist = scope.where("LOWER(song_title) = ? AND LOWER(artist) = ?", normalized_title, normalized_artist)
+      by_tidal.or(by_title_artist)
+    else
+      scope.where("LOWER(song_title) = ? AND LOWER(artist) = ?", normalized_title, normalized_artist)
+    end
+    song_count = song_match_scope.count
 
     {
       song_count: song_count,
