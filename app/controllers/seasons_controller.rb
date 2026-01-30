@@ -193,7 +193,7 @@ class SeasonsController < ApplicationController
     {
       submission_deadline: submission_deadline,
       voting_deadline: voting_deadline
-    }.then { |deadlines| [deadlines, deadlines[:voting_deadline]] }
+    }.then { |deadlines| [ deadlines, deadlines[:voting_deadline] ] }
   end
 
   def weekday_time_for_week(week_start, target_wday, time_source)
