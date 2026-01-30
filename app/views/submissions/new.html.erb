@@ -122,6 +122,14 @@
       <%= f.hidden_field :song_url, id: "submission-song-url", data: { "tidal-search-target": "urlField" } %>
       <%= f.hidden_field :tidal_id, id: "submission-tidal-id", data: { "tidal-search-target": "tidalIdField" } %>
 
+      <div class="space-y-3">
+        <%= f.label :comment, "Comment (optional)", class: "block text-sm font-semibold" %>
+        <%= f.text_area :comment,
+                        rows: 3,
+                        class: "w-full bg-gray-900 border border-gray-600 rounded-lg px-4 py-3 focus:border-purple-500 focus:ring-1 focus:ring-purple-500",
+                        placeholder: "Share a note about your pick..." %>
+      </div>
+
       <div class="flex items-center justify-between pt-4">
         <%= f.submit @submission.persisted? ? "Update Song" : "Submit Song",
                      class: "bg-purple-600 hover:bg-purple-700 text-white px-8 py-3 rounded-lg font-semibold cursor-pointer" %>
