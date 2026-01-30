@@ -10,9 +10,30 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_01_26_000000) do
+ActiveRecord::Schema[8.1].define(version: 2026_01_30_120000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
+
+  create_table "category_submissions", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.bigint "group_id", null: false
+    t.string "subtitle", null: false
+    t.string "title", null: false
+    t.datetime "updated_at", null: false
+    t.bigint "user_id", null: false
+    t.index ["group_id"], name: "index_category_submissions_on_group_id"
+    t.index ["user_id"], name: "index_category_submissions_on_user_id"
+  end
+
+  create_table "category_votes", force: :cascade do |t|
+    t.bigint "category_submission_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.bigint "voter_id", null: false
+    t.index ["category_submission_id", "voter_id"], name: "index_category_votes_on_category_submission_id_and_voter_id"
+    t.index ["category_submission_id"], name: "index_category_votes_on_category_submission_id"
+    t.index ["voter_id"], name: "index_category_votes_on_voter_id"
+  end
 
   create_table "groups", force: :cascade do |t|
     t.datetime "created_at", null: false
@@ -48,11 +69,21 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_26_000000) do
 
   create_table "seasons", force: :cascade do |t|
     t.boolean "active", default: false
+    t.datetime "category_submission_deadline"
+    t.datetime "category_voting_deadline"
     t.datetime "created_at", null: false
+    t.string "deadline_mode", default: "weekdays", null: false
     t.bigint "group_id", null: false
     t.integer "number", null: false
+    t.datetime "start_at", null: false
     t.date "start_date"
+    t.integer "submission_interval_days", default: 3, null: false
+    t.integer "submission_interval_hours", default: 0, null: false
+    t.integer "submission_weekday", default: 4, null: false
     t.datetime "updated_at", null: false
+    t.integer "voting_interval_days", default: 3, null: false
+    t.integer "voting_interval_hours", default: 0, null: false
+    t.integer "voting_weekday", default: 0, null: false
     t.index ["group_id", "number"], name: "index_seasons_on_group_id_and_number", unique: true
     t.index ["group_id"], name: "index_seasons_on_group_id"
   end
@@ -132,6 +163,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_26_000000) do
     t.bigint "season_id", null: false
     t.string "spotify_playlist_url"
     t.datetime "submission_deadline", null: false
+    t.string "subtitle"
     t.string "tidal_playlist_url"
     t.datetime "updated_at", null: false
     t.datetime "voting_deadline", null: false
@@ -139,6 +171,10 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_26_000000) do
     t.index ["season_id"], name: "index_weeks_on_season_id"
   end
 
+  add_foreign_key "category_submissions", "groups"
+  add_foreign_key "category_submissions", "users"
+  add_foreign_key "category_votes", "category_submissions"
+  add_foreign_key "category_votes", "users", column: "voter_id"
   add_foreign_key "groups", "users", column: "creator_id"
   add_foreign_key "likes", "submissions"
   add_foreign_key "likes", "users"

@@ -16,7 +16,8 @@ Rails.application.routes.draw do
 
   # Groups
   resources :groups do
-    resources :seasons, only: [ :index, :new, :create, :show ] do
+    resources :memberships, only: [ :update ]
+    resources :seasons, only: [ :index, :new, :create, :show, :edit, :update ] do
       member do
         post :generate_playlist
       end
@@ -28,6 +29,7 @@ Rails.application.routes.draw do
           collection do
             get :search
             get :lookup
+            get :duplicates
           end
         end
       end
@@ -36,6 +38,11 @@ Rails.application.routes.draw do
       get :invite
       post :generate_playlist
       post :generate_liked_playlist
+    end
+    resources :category_submissions, only: [ :create ] do
+      member do
+        post :apply_to_week
+      end
     end
     # Leaderboards
     get "leaderboard/weekly/:week_id", to: "leaderboards#weekly", as: :weekly_leaderboard
@@ -51,6 +58,9 @@ Rails.application.routes.draw do
   resources :submissions, only: [] do
     resources :votes, only: [ :create ]
     resources :likes, only: [ :create, :destroy ]
+  end
+  resources :category_submissions, only: [] do
+    resources :category_votes, only: [ :create, :destroy ]
   end
   post "weeks/:week_id/votes", to: "votes#bulk_update", as: :week_votes
 

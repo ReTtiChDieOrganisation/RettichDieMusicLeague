@@ -33,7 +33,8 @@
           <div class="flex items-center justify-between">
             <div>
               <p class="text-2xl font-bold text-purple-400">Season <%= @current_season.number %></p>
-              <p class="text-sm text-gray-400 mt-1">Started <%= @current_season.start_date.strftime("%B %d, %Y") %></p>
+              <% start_time = @current_season.start_at || @current_season.start_date.in_time_zone %>
+              <p class="text-sm text-gray-400 mt-1">Started <%= start_time.strftime("%B %d, %Y %I:%M %p") %></p>
             </div>
             <%= link_to "View Season", group_season_path(@group, @current_season), 
                 class: "bg-purple-600 hover:bg-purple-700 text-white px-6 py-2 rounded-lg font-semibold" %>
@@ -50,6 +51,107 @@
       </div>
     <% end %>
 
+    <%# Category Ideas %>
+    <div class="mb-8 bg-gray-800 rounded-lg p-6 border border-gray-700">
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="text-xl font-semibold">Category Ideas</h2>
+      </div>
+
+      <p class="text-gray-400 mb-4">
+        Submit categories any time and vote for your favorites. Each member can cast up to 2 votes per category.
+      </p>
+
+      <%= form_with model: @category_submission,
+                    url: group_category_submissions_path(@group),
+                    method: :post,
+                    class: "space-y-4 mb-6" do |form| %>
+        <div>
+          <%= form.label :title, "Category title", class: "block text-sm font-semibold mb-2" %>
+          <%= form.text_field :title,
+                              required: true,
+                              class: "w-full bg-gray-900 border border-gray-700 rounded px-4 py-2",
+                              placeholder: "Deep Cuts Only" %>
+        </div>
+        <div>
+          <%= form.label :subtitle, "Subtitle", class: "block text-sm font-semibold mb-2" %>
+          <%= form.text_field :subtitle,
+                              required: true,
+                              class: "w-full bg-gray-900 border border-gray-700 rounded px-4 py-2",
+                              placeholder: "Hidden gems you swear by" %>
+        </div>
+        <%= form.submit "Submit Category",
+                        class: "bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg font-semibold" %>
+      <% end %>
+
+      <% if @category_submissions.any? %>
+        <div class="space-y-3">
+          <% @category_submissions.sort_by { |submission| -submission.category_votes.size }.each do |submission| %>
+            <% user_votes = @category_votes_by_submission[submission.id] || [] %>
+            <div class="bg-gray-900 rounded-lg p-4 border border-gray-700">
+              <div class="flex flex-wrap items-start justify-between gap-4">
+                <div>
+                  <p class="text-lg font-semibold mb-1"><%= submission.title %></p>
+                  <p class="text-sm text-gray-400 mb-1"><%= submission.subtitle %></p>
+                  <p class="text-xs text-gray-500">Submitted by <%= submission.user.display_name %></p>
+                </div>
+                <div class="text-right">
+                  <p class="text-purple-400 font-semibold">
+                    <%= pluralize(submission.category_votes.size, "vote") %>
+                  </p>
+                  <p class="text-xs text-gray-400">Your votes: <%= user_votes.size %>/2</p>
+                  <div class="mt-2 flex items-center justify-end gap-2">
+                    <% if user_votes.size < 2 %>
+                      <%= button_to "Vote",
+                                    category_submission_category_votes_path(submission),
+                                    method: :post,
+                                    class: "bg-purple-600 hover:bg-purple-700 text-white px-3 py-1 rounded text-xs font-semibold" %>
+                    <% end %>
+                    <% if user_votes.any? %>
+                      <%= button_to "Remove Vote",
+                                    category_submission_category_vote_path(submission, @category_vote_ids_by_submission[submission.id].last),
+                                    method: :delete,
+                                    class: "bg-gray-800 hover:bg-gray-700 text-white px-3 py-1 rounded text-xs font-semibold" %>
+                    <% end %>
+                  </div>
+                </div>
+              </div>
+
+              <% if @membership&.admin? %>
+                <div class="mt-4 pt-4 border-t border-gray-800">
+                  <% if @season_options.any? && @week_options.any? %>
+                    <%= form_with url: apply_to_week_group_category_submission_path(@group, submission),
+                                  method: :post,
+                                  class: "flex flex-wrap items-end gap-3" do |form| %>
+                      <div>
+                        <%= form.label :season_id, "Season", class: "block text-xs font-semibold mb-1 text-gray-400" %>
+                        <%= form.select :season_id,
+                                        options_for_select(@season_options),
+                                        {},
+                                        class: "bg-gray-800 border border-gray-600 rounded px-3 py-2 text-sm" %>
+                      </div>
+                      <div>
+                        <%= form.label :week_id, "Week", class: "block text-xs font-semibold mb-1 text-gray-400" %>
+                        <%= form.select :week_id,
+                                        options_for_select(@week_options),
+                                        {},
+                                        class: "bg-gray-800 border border-gray-600 rounded px-3 py-2 text-sm" %>
+                      </div>
+                      <%= form.submit "Apply to Week",
+                                      class: "bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg font-semibold" %>
+                    <% end %>
+                  <% else %>
+                    <p class="text-xs text-gray-400">Create a season first to apply categories.</p>
+                  <% end %>
+                </div>
+              <% end %>
+            </div>
+          <% end %>
+        </div>
+      <% else %>
+        <p class="text-gray-400 text-center py-4">No category submissions yet.</p>
+      <% end %>
+    </div>
+
     <%# Members %>
     <div class="mb-8">
       <h2 class="text-xl font-semibold mb-4">
@@ -57,11 +159,25 @@
       </h2>
       <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
         <% @members.each do |member| %>
+          <% membership = @group.memberships.find_by(user: member) %>
           <div class="bg-gray-900 rounded-lg p-4 border border-gray-700">
-            <p class="font-semibold"><%= member.display_name %></p>
-            <% if @group.memberships.find_by(user: member).admin? %>
-              <span class="text-xs text-purple-400">Admin</span>
-            <% end %>
+            <div class="flex items-start justify-between gap-3">
+              <div>
+                <p class="font-semibold"><%= member.display_name %></p>
+                <% if membership&.admin? %>
+                  <span class="text-xs text-purple-400">Admin</span>
+                <% else %>
+                  <span class="text-xs text-gray-400">Member</span>
+                <% end %>
+              </div>
+              <% if @membership&.admin? && membership&.member? %>
+                <%= button_to "Make Admin",
+                              group_membership_path(@group, membership),
+                              method: :patch,
+                              params: { membership: { role: :admin } },
+                              class: "bg-purple-600 hover:bg-purple-700 text-white px-3 py-1 rounded text-xs font-semibold whitespace-nowrap" %>
+              <% end %>
+            </div>
           </div>
         <% end %>
       </div>

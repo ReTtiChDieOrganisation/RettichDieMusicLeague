@@ -1,5 +1,5 @@
 class SubmissionsController < ApplicationController
-  before_action :set_week, only: [ :new, :create, :search, :lookup, :update ]
+  before_action :set_week, only: [ :new, :create, :search, :lookup, :update, :duplicates ]
   before_action :set_submission, only: [ :show, :update ]
   before_action :require_group_membership
   before_action :check_submission_phase, only: [ :new, :create, :update ]
@@ -72,6 +72,36 @@ class SubmissionsController < ApplicationController
     end
   end
 
+  def duplicates
+    song_title = params[:song_title].to_s.strip
+    artist = params[:artist].to_s.strip
+    tidal_id = params[:tidal_id].to_s.strip.presence
+    submission_id = params[:submission_id].presence
+
+    if song_title.blank? || artist.blank?
+      render json: { error: "Missing song_title or artist" }, status: :unprocessable_entity
+      return
+    end
+
+    base_scope = Submission.joins(week: { season: :group })
+                           .where(weeks: { id: @week.id })
+    season_scope = Submission.joins(week: :season).where(weeks: { season_id: @week.season_id })
+    group_scope = Submission.joins(week: { season: :group })
+                            .where(seasons: { group_id: @week.season.group_id })
+
+    if submission_id
+      base_scope = base_scope.where.not(id: submission_id)
+      season_scope = season_scope.where.not(id: submission_id)
+      group_scope = group_scope.where.not(id: submission_id)
+    end
+
+    render json: {
+      week: duplicate_summary(base_scope, song_title, artist, tidal_id: tidal_id),
+      season: duplicate_summary(season_scope, song_title, artist, tidal_id: tidal_id),
+      group: duplicate_summary(group_scope, song_title, artist, tidal_id: tidal_id)
+    }
+  end
+
   private
 
   def set_week
@@ -105,5 +135,27 @@ class SubmissionsController < ApplicationController
       redirect_to group_season_week_path(@week.season.group, @week.season, @week),
                   alert: "Submissions are closed for this week."
     end
+  end
+
+  def duplicate_summary(scope, song_title, artist, tidal_id: nil)
+    normalized_title = song_title.downcase.squish
+    normalized_artist = artist.downcase.squish
+    artist_count = scope.where("LOWER(artist) = ?", normalized_artist).count
+
+    song_match_scope = if tidal_id.present?
+      by_tidal = scope.where(tidal_id: tidal_id)
+      by_title_artist = scope.where("LOWER(song_title) = ? AND LOWER(artist) = ?", normalized_title, normalized_artist)
+      by_tidal.or(by_title_artist)
+    else
+      scope.where("LOWER(song_title) = ? AND LOWER(artist) = ?", normalized_title, normalized_artist)
+    end
+    song_count = song_match_scope.count
+
+    {
+      song_count: song_count,
+      artist_count: artist_count,
+      same_song: song_count.positive?,
+      same_artist: artist_count.positive?
+    }
   end
 end

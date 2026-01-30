@@ -66,7 +66,7 @@ class WeeksController < ApplicationController
   end
 
   def week_params
-    params.require(:week).permit(:category, :submission_deadline, :voting_deadline)
+    params.require(:week).permit(:category, :subtitle, :submission_deadline, :voting_deadline)
   end
 
   def require_group_admin

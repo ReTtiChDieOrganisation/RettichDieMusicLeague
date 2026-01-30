@@ -10,7 +10,12 @@
 
   <div class="bg-gray-800 rounded-lg p-8 border border-gray-700">
     <h1 class="text-3xl font-bold mb-2">Submit Your Song</h1>
-    <p class="text-purple-400 font-semibold text-lg mb-8"><%= @week.category %></p>
+    <p class="text-purple-400 font-semibold text-lg"><%= @week.category %></p>
+    <% if @week.subtitle.present? %>
+      <p class="text-sm text-purple-200/80 mb-8"><%= @week.subtitle %></p>
+    <% else %>
+      <div class="mb-8"></div>
+    <% end %>
 
     <div class="bg-blue-500/10 border border-blue-500 rounded-lg p-4 mb-6">
       <p class="text-blue-300 text-sm">
@@ -30,7 +35,9 @@
                     controller: "tidal-search",
                     action: "submit->tidal-search#validate click->tidal-search#close",
                     "tidal-search-url": search_group_season_week_submissions_path(@group, @season, @week),
-                    "tidal-lookup-url": lookup_group_season_week_submissions_path(@group, @season, @week)
+                    "tidal-lookup-url": lookup_group_season_week_submissions_path(@group, @season, @week),
+                    "tidal-duplicates-url": duplicates_group_season_week_submissions_path(@group, @season, @week),
+                    "tidal-submission-id": @submission.id
                   } do |f| %>
       <% if @submission.errors.any? %>
         <div class="bg-red-500/10 border border-red-500 rounded-lg p-4">
@@ -71,6 +78,7 @@
         <p id="tidal-error" class="text-sm text-red-400 hidden" data-tidal-search-target="error">
           Select a track from the list before submitting.
         </p>
+        <p id="tidal-warning" class="text-sm text-yellow-300 hidden" data-tidal-search-target="warning"></p>
       </div>
 
       <div class="space-y-3">
@@ -113,6 +121,14 @@
       <%= f.hidden_field :artist, id: "submission-artist", data: { "tidal-search-target": "artistField" } %>
       <%= f.hidden_field :song_url, id: "submission-song-url", data: { "tidal-search-target": "urlField" } %>
       <%= f.hidden_field :tidal_id, id: "submission-tidal-id", data: { "tidal-search-target": "tidalIdField" } %>
+
+      <div class="space-y-3">
+        <%= f.label :comment, "Comment (optional)", class: "block text-sm font-semibold" %>
+        <%= f.text_area :comment,
+                        rows: 3,
+                        class: "w-full bg-gray-900 border border-gray-600 rounded-lg px-4 py-3 focus:border-purple-500 focus:ring-1 focus:ring-purple-500",
+                        placeholder: "Share a note about your pick..." %>
+      </div>
 
       <div class="flex items-center justify-between pt-4">
         <%= f.submit @submission.persisted? ? "Update Song" : "Submit Song",
