@@ -29,7 +29,7 @@ class GroupsController < ApplicationController
     end
     @week_options = @group.seasons.includes(:weeks).flat_map do |season|
       season.weeks.order(:number).map do |week|
-        ["Season #{season.number} - Week #{week.number}", week.id]
+        [ "Season #{season.number} - Week #{week.number}", week.id ]
       end
     end
   end
